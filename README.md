@@ -1,31 +1,16 @@
-# DEG Project Challenges
+# React + Vite
 
-This repository contains the DEG training project challenges across multiple tracks:
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- Backend
-- Data Engineering
-- Fullstack
-- QA
-- DevOps
+Currently, two official plugins are available:
 
-Each challenge is self-contained inside its folder and includes its own README with task details.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Applicant Guide
+## React Compiler
 
-If you are applying, start by choosing the challenge folder that matches your track or assigned task. Then open the README inside that folder.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-The challenge-specific README files include:
+## Expanding the ESLint configuration
 
-- Challenge description and requirements
-- Expected deliverables
-- Submission guidelines and deadlines (where applicable)
-- Any setup instructions or constraints
-
-## Where To Start
-
-1. Open the relevant track folder (for example, `backend/`, `data-engineering/`, or `fullstack/`).
-2. Enter the challenge project folder.
-3. Read that project's `README.md` completely before starting work.
-4. Follow the listed deliverables and submission instructions exactly.
-
-If instructions differ between this root README and a challenge README, treat the challenge README as the source of truth.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
