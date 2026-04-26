@@ -1,28 +1,24 @@
-import TopBar from "./components/TopBar";
-import SideBar from "./components/SideBar";
-import PropertiesPanel from "./components/PropertiesPanel";
-import Breadcrumb from "./components/Breadcrumb";
-import "./App.css";
+import { useState } from 'react';
+import TopBar from './components/TopBar';
+import SideBar from './components/SideBar';
+import PropertiesPanel from './components/PropertiesPanel';
+import Breadcrumb from './components/Breadcrumb';
+import './App.css';
 
 function App() {
-  return (
-    <div className="app">
-      
-      <TopBar />
+  const [searchQuery, setSearchQuery] = useState('');
 
-      
-      <div className="breadcrumb-container">
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      <TopBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+
+      <div className="border-b border-border">
         <Breadcrumb />
       </div>
 
-      
-      <div className="main">
+      <div className="flex flex-1 overflow-hidden">
         <SideBar />
-
-        <div className="center">
-          
-        </div>
-
+        <div className="flex-1 overflow-y-auto bg-background" />
         <PropertiesPanel />
       </div>
     </div>
