@@ -23,19 +23,15 @@ function App() {
   const handleSelect = useCallback((item) => {
     setSelectedItem(item);
 
-    // Only folders update the breadcrumb path
-    if (item.type === 'folder') {
-      setCurrentPath((prev) => {
-        // Avoid duplicate if already the last segment
-        if (prev[prev.length - 1] === item.name) return prev;
-        return [...prev, item.name];
-      });
+    // Folders set the breadcrumb to their exact tree path
+    if (item.type === 'folder' && item.treePath) {
+      setCurrentPath(['Home', ...item.treePath]);
     }
 
     // Track recently opened (deduplicate by id, newest first, max 10)
     setRecentItems((prev) => {
       const filtered = prev.filter((r) => r.id !== item.id);
-      return [{ ...item, openedAt: Date.now() }, ...filtered].slice(0, 10);
+      return [{ ...item, openedAt: Date.now() }, ...filtered].slice(0, 5);
     });
   }, []);
 

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight, Folder, File } from 'lucide-react';
 
-/** Returns true if item or any descendant matches the search query */
 function hasMatch(item, query) {
   if (!query) return true;
   const q = query.toLowerCase();
@@ -9,11 +8,20 @@ function hasMatch(item, query) {
   return item.children?.some((child) => hasMatch(child, q)) ?? false;
 }
 
-function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' }) {
+function hasSelectedDescendant(item, selectedId) {
+  if (!item.children) return false;
+  return item.children.some(
+    (child) => child.id === selectedId || hasSelectedDescendant(child, selectedId)
+  );
+}
+
+function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '', treePath = [] }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const hasChildren = item.type === 'folder' && item.children?.length > 0;
   const isSelected = selectedId === item.id;
+  const isActiveParent = hasChildren && !isSelected && hasSelectedDescendant(item, selectedId);
+
   const nameMatches = searchQuery
     ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
     : false;
@@ -21,14 +29,13 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' 
     ? item.children.some((c) => hasMatch(c, searchQuery))
     : false;
 
-  // Hide items with no match anywhere in their subtree
   if (searchQuery && !nameMatches && !childMatches) return null;
 
-  // Auto-expand when a search finds matches inside this folder
   const expanded = isExpanded || (!!searchQuery && childMatches);
+  const currentPath = [...treePath, item.name];
 
   const handleClick = () => {
-    onSelect(item);
+    onSelect({ ...item, treePath: currentPath });
     if (hasChildren) setIsExpanded((prev) => !prev);
   };
 
@@ -44,7 +51,7 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' 
         break;
       case 'Enter':
         e.preventDefault();
-        onSelect(item);
+        onSelect({ ...item, treePath: currentPath });
         if (hasChildren) setIsExpanded((prev) => !prev);
         break;
       case 'ArrowDown': {
@@ -66,6 +73,20 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' 
     }
   };
 
+  // bg classes
+  const bgClass = isSelected
+    ? 'bg-primary/20'
+    : isActiveParent
+    ? 'bg-primary/10'
+    : 'hover:bg-muted/40';
+
+  // left border via inline style so it always renders regardless of Tailwind purge
+  const borderStyle = isSelected
+    ? { borderLeft: '2px solid #3b82f6' }
+    : isActiveParent
+    ? { borderLeft: '2px solid rgba(59,130,246,0.45)' }
+    : { borderLeft: '2px solid transparent' };
+
   return (
     <div role="treeitem" aria-expanded={hasChildren ? expanded : undefined} aria-selected={isSelected}>
       <div
@@ -74,47 +95,50 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' 
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={[
-          'flex items-center gap-2 py-2 pr-3 cursor-pointer rounded-md transition-colors duration-150',
+          'flex items-center gap-2 py-2 pr-3 cursor-pointer transition-colors duration-150',
           'outline-none focus-visible:ring-1 focus-visible:ring-primary',
-          isSelected
-            ? 'bg-muted/60 border-l-2 border-primary'
-            : 'hover:bg-muted/40',
+          bgClass,
         ].join(' ')}
-        style={{ paddingLeft: `${level * 16 + 12}px` }}
+        style={{
+          paddingLeft: `${level * 16 + 12}px`,
+          ...borderStyle,
+        }}
       >
-        {/* Chevron or spacer */}
         {hasChildren ? (
           <ChevronRight
             className={[
-              'w-4 h-4 text-muted-fg shrink-0 transition-transform duration-150',
+              'w-4 h-4 shrink-0 transition-transform duration-150',
               expanded ? 'rotate-90' : '',
+              isSelected || isActiveParent ? 'text-primary' : 'text-muted-fg',
             ].join(' ')}
           />
         ) : (
           <span className="w-4 shrink-0" />
         )}
 
-        {/* Icon */}
         {item.type === 'folder' ? (
           <Folder className="w-4 h-4 text-primary shrink-0" />
         ) : (
-          <File className="w-4 h-4 text-muted-fg shrink-0" />
+          <File className={[
+            'w-4 h-4 shrink-0',
+            isSelected ? 'text-primary' : 'text-muted-fg',
+          ].join(' ')} />
         )}
 
-        {/* Name — highlighted when it matches the search */}
-        <span
-          className={[
-            'text-sm truncate',
-            nameMatches && searchQuery
-              ? 'text-primary font-medium'
-              : 'text-foreground',
-          ].join(' ')}
-        >
+        <span className={[
+          'text-sm truncate',
+          isSelected
+            ? 'text-primary font-medium'
+            : isActiveParent
+            ? 'text-foreground font-medium'
+            : nameMatches && searchQuery
+            ? 'text-primary font-medium'
+            : 'text-foreground',
+        ].join(' ')}>
           {item.name}
         </span>
       </div>
 
-      {/* Children rendered recursively */}
       {hasChildren && expanded && (
         <div role="group">
           {item.children.map((child) => (
@@ -125,6 +149,7 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '' 
               selectedId={selectedId}
               onSelect={onSelect}
               searchQuery={searchQuery}
+              treePath={currentPath}
             />
           ))}
         </div>

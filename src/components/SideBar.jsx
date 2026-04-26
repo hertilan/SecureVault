@@ -16,6 +16,7 @@ function SideBar({ items, selectedId, onSelect, searchQuery }) {
             selectedId={selectedId}
             onSelect={onSelect}
             searchQuery={searchQuery}
+            treePath={[]}
           />
         ))}
       </div>

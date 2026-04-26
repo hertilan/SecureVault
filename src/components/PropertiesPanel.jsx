@@ -61,16 +61,14 @@ function PropertiesPanel({ selectedItem }) {
 
       {/* Details */}
       <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
-        <DetailRow label="Name" value={selectedItem.name} />
-        <DetailRow label="Type" value={isFolder ? 'Folder' : 'File'} />
-        {selectedItem.size && (
-          <DetailRow label="Size" value={selectedItem.size} />
-        )}
+        <DetailRow label="Type" value={isFolder ? 'Folder' : 'Document'} />
         {itemCount !== null && (
           <DetailRow label="Items" value={`${itemCount} item${itemCount !== 1 ? 's' : ''}`} />
         )}
+        {selectedItem.size && (
+          <DetailRow label="Size" value={selectedItem.size} />
+        )}
         <DetailRow label="Created" value={created} />
-        <DetailRow label="ID" value={selectedItem.id} mono />
       </div>
     </aside>
   );
