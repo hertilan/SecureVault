@@ -52,6 +52,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Tree item hover — arbitrary Tailwind opacity modifier unreliable in v4 */
+.tree-item-hover:hover {
+  background-color: rgba(51, 65, 85, 0.4);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

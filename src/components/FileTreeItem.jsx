@@ -8,19 +8,12 @@ function hasMatch(item, query) {
   return item.children?.some((child) => hasMatch(child, q)) ?? false;
 }
 
-function hasSelectedDescendant(item, selectedId) {
-  if (!item.children) return false;
-  return item.children.some(
-    (child) => child.id === selectedId || hasSelectedDescendant(child, selectedId)
-  );
-}
-
 function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '', treePath = [] }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const hasChildren = item.type === 'folder' && item.children?.length > 0;
   const isSelected = selectedId === item.id;
-  const isActiveParent = hasChildren && !isSelected && hasSelectedDescendant(item, selectedId);
+  const isExpandedParent = hasChildren && isExpanded;
 
   const nameMatches = searchQuery
     ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,34 +66,33 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
     }
   };
 
-  // bg classes
-  const bgClass = isSelected
-    ? 'bg-primary/20'
-    : isActiveParent
-    ? 'bg-primary/10'
-    : 'hover:bg-muted/40';
+  const isMainParent = isExpandedParent && level === 0;
+  const isActive = item.type === 'folder' ? isExpandedParent : isSelected;
 
-  // left border via inline style so it always renders regardless of Tailwind purge
-  const borderStyle = isSelected
-    ? { borderLeft: '2px solid #3b82f6' }
-    : isActiveParent
-    ? { borderLeft: '2px solid rgba(59,130,246,0.45)' }
+  const bgClass = isActive
+    ? 'bg-[#334155]/60'
+    : 'tree-item-hover';
+
+  const borderStyle = isMainParent
+    ? { borderLeft: '2px solid #3B82F6' }
     : { borderLeft: '2px solid transparent' };
 
   return (
-    <div role="treeitem" aria-expanded={hasChildren ? expanded : undefined} aria-selected={isSelected}>
+    <div role="treeitem" aria-expanded={hasChildren ? expanded : undefined} aria-selected={isSelected} className="mb-[4px]">
       <div
         data-tree-item
         tabIndex={0}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={[
-          'flex items-center gap-2 py-2 pr-3 cursor-pointer transition-colors duration-150',
+          'flex items-center gap-[3px] rounded-[5px] cursor-pointer transition-colors duration-150',
           'outline-none focus-visible:ring-1 focus-visible:ring-primary',
           bgClass,
         ].join(' ')}
         style={{
-          paddingLeft: `${level * 16 + 12}px`,
+          padding: '5px',
+          marginLeft: `${level * 20 + 4}px`,
+          marginRight: '4px',
           ...borderStyle,
         }}
       >
@@ -109,7 +101,7 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
             className={[
               'w-4 h-4 shrink-0 transition-transform duration-150',
               expanded ? 'rotate-90' : '',
-              isSelected || isActiveParent ? 'text-primary' : 'text-muted-fg',
+              'text-muted-fg',
             ].join(' ')}
           />
         ) : (
@@ -127,9 +119,7 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
 
         <span className={[
           'text-sm truncate',
-          isSelected
-            ? 'text-primary font-medium'
-            : isActiveParent
+          isActive
             ? 'text-foreground font-medium'
             : nameMatches && searchQuery
             ? 'text-primary font-medium'
@@ -140,7 +130,7 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
       </div>
 
       {hasChildren && expanded && (
-        <div role="group">
+        <div role="group" className="mt-[4px]">
           {item.children.map((child) => (
             <FileTreeItem
               key={child.id}
