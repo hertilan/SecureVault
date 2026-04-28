@@ -28,8 +28,13 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
   const currentPath = [...treePath, item.name];
 
   const handleClick = () => {
-    onSelect({ ...item, treePath: currentPath });
-    if (hasChildren) setIsExpanded((prev) => !prev);
+    if (hasChildren) {
+      const next = !isExpanded;
+      setIsExpanded(next);
+      onSelect({ ...item, treePath: next ? currentPath : treePath });
+    } else {
+      onSelect({ ...item, treePath: currentPath });
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -44,8 +49,13 @@ function FileTreeItem({ item, level = 0, selectedId, onSelect, searchQuery = '',
         break;
       case 'Enter':
         e.preventDefault();
-        onSelect({ ...item, treePath: currentPath });
-        if (hasChildren) setIsExpanded((prev) => !prev);
+        if (hasChildren) {
+          const next = !isExpanded;
+          setIsExpanded(next);
+          onSelect({ ...item, treePath: next ? currentPath : treePath });
+        } else {
+          onSelect({ ...item, treePath: currentPath });
+        }
         break;
       case 'ArrowDown': {
         e.preventDefault();
