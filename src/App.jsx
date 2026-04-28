@@ -14,11 +14,31 @@ function buildBreadcrumbItems(path) {
   }));
 }
 
+function findById(items, id) {
+  for (const item of items) {
+    if (item.id === id) return item;
+    if (item.children) {
+      const found = findById(item.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+const now = Date.now();
+const SEED_IDS = ['pay_feb', 'root_2', 'email_2', 'config_yaml', 'logo_svg'];
+const SEED_RECENT = SEED_IDS
+  .map((id, i) => {
+    const item = findById(fileData, id);
+    return item ? { ...item, openedAt: now - (i + 1) * 20 * 60 * 1000 } : null;
+  })
+  .filter(Boolean);
+
 function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentPath, setCurrentPath] = useState(['Home']);
   const [searchQuery, setSearchQuery] = useState('');
-  const [recentItems, setRecentItems] = useState([]);
+  const [recentItems, setRecentItems] = useState(SEED_RECENT);
 
   const handleSelect = useCallback((item) => {
     setSelectedItem(item);
